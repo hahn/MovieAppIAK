@@ -90,6 +90,32 @@ public class MovieContract {
 
     }
 
+    public static final class ProductionCompanies implements BaseColumns {
+        public static final String TABLE_NAME = "production_companies";
+        public static final String COLUMN_ID_PRODCOMP = "id_company";
+        public static final String COLUMN_NAME_COMP = "name_company";
+    }
+
+    public static final class ProductionCountries implements BaseColumns {
+        public static final String TABLE_NAME = "production_country";
+        public static final String COLUMN_ID_ISO = "id_iso";
+        public static final String COLUMN_NAME_COUNTRY = "name_country";
+    }
+
+    public static final class SpokenLanguages implements BaseColumns {
+        public static final String TABLE_NAME = "spoken_languages";
+        public static final String COLUMN_ID_ISO = "id_iso";
+        public static final String COLUMN_NAME_COUNTRY = "name_lang";
+    }
+
+    public static final class BelongToCollections implements BaseColumns {
+        public static final String TABLE_NAME = "belong_to_collections";
+        public static final String COLUMN_ID_COL = "id_col";
+        public static final String COLUMN_NAME_COL = "name";
+        public static final String COLUMN_POSTER_PATH = "poster_path";
+        public static final String COLUMN_BACKDROP_PATH = "backdrop_path";
+    }
+
     public static final class MovieOmdbEntry implements BaseColumns {
         //nanti sajalah
     }

@@ -1,6 +1,7 @@
 package id.web.hn.andro.movieappiak.app.fragment;
 
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -31,7 +32,9 @@ import android.widget.Toast;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import id.web.hn.andro.movieappiak.BuildConfig;
@@ -64,8 +67,7 @@ public class MovieFrontFragment extends Fragment {
     MovieTMDBAdapter mAdapter, mAdapterLocal;
     LinearLayout llfront;
     LinearLayoutManager llm;
-    Toolbar toolbar;
-    ActionBar mActionbar;
+    ProgressDialog dialog;
 
     private MovieDbSQLiteQuery movieQuery;
     private ConnectionDetector connectionDetector;
@@ -98,6 +100,7 @@ public class MovieFrontFragment extends Fragment {
         llm = new LinearLayoutManager(getActivity());
         ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         ((MainActivity)getActivity()).getSupportActionBar().setTitle(R.string.app_name);
+        dialog = new ProgressDialog(getActivity());
 
         //inisiasi widget
         txtTitleFront = (TextView) rootview.findViewById(R.id.txt_title_front);
@@ -165,10 +168,17 @@ public class MovieFrontFragment extends Fragment {
         super.onStart();
 
         if(isInternetConnected == true){
+
+
             //Ada koneksi. cek apakah adapter berisi atau tidak
             if(mAdapter.getDataMovie().size() == 0){
                 //adapter kosong. ambil API
                 Log.d("connection", "hasil: " + isInternetConnected + ", size: " + mAdapter.getDataMovie().size());
+                dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                dialog.setMessage("Loading. Please wait...");
+                dialog.setIndeterminate(true);
+                dialog.setCanceledOnTouchOutside(false);
+                dialog.show();
                 getDataFromAPI();
 
             }else{
@@ -206,9 +216,16 @@ public class MovieFrontFragment extends Fragment {
             if(i == 0){
                 moviePopularFront = mv;
                 txtTitleFront.setText(mv.getTitle());
-                Picasso.with(getActivity())
-                        .load(urlimage + mv.getBackdropPath())
+                Picasso picasso = Picasso.with(getActivity());
+                picasso.setIndicatorsEnabled(true);
+                picasso.load(urlimage + mv.getBackdropPath())
+                        .error(R.mipmap.img_background)
+                        .networkPolicy(NetworkPolicy.OFFLINE)
                         .into(imgTitleFront);
+
+//                Picasso.with(getActivity())
+//                        .load(urlimage + mv.getBackdropPath())
+//                        .into(imgTitleFront);
                 float rt = mv.getVoteAverage() /2;
                 rating.setRating(rt);
                 rating.setStepSize(0.1f);
@@ -251,10 +268,16 @@ public class MovieFrontFragment extends Fragment {
         @Override
         protected Void doInBackground(Integer... params) {
             final String BASE_URL = "http://api.themoviedb.org/3/";
-            int primaryReleaseYear = 2016;
+            int primaryReleaseYear;
             String sortBy = "popularity.desc";
             String API_KEY = BuildConfig.TMDB_API_KEY;
             int page = params[0];
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
+            Date thisYear = new Date();
+            String year = sdf.format(thisYear);
+            primaryReleaseYear = Integer.parseInt(year);
+
             //update page
             page++;
 
@@ -291,6 +314,7 @@ public class MovieFrontFragment extends Fragment {
                 @Override
                 public void onFailure(Call<ModelTMDBMovie> call, Throwable t) {
                     Log.d("onFailure", "response failure");
+                    dialog.dismiss();
                 }
             });
             //
@@ -303,21 +327,6 @@ public class MovieFrontFragment extends Fragment {
             int i = 0;
             MovieTMDB mv;
             if(results != null){
-//                if(page == 1){
-//                    for(i = 1; i < results.size(); i++){
-//                        mv = results.get(i);
-//                        mAdapter.getDataMovie().add(mv);
-//                        mAdapter.notifyDataSetChanged();
-//                        movieQuery.insertMovie(mv);
-//                    }
-//
-//                }else {
-//                    for(MovieTMDB mt : results){
-//                        mAdapter.getDataMovie().add(mt);
-//                        mAdapter.notifyDataSetChanged();
-//                        movieQuery.insertMovie(mt);
-//                    }
-//                }
                 for(MovieTMDB mt : results){
                     mAdapter.getDataMovie().add(mt);
                     mAdapter.notifyDataSetChanged();
@@ -325,18 +334,82 @@ public class MovieFrontFragment extends Fragment {
                 }
                 //close db
                 movieQuery.closeDb();
+                dialog.dismiss();
             }
 
         }
 
-        private void isiMovieFront(MovieTMDB movie){
+        private void isiMovieFront(final MovieTMDB movie){
 //            movieQuery.openDb();
 
             txtTitleFront.setText(movie.getTitle());
-            Picasso.with(getActivity())
-                    .load(urlimage + movie.getBackdropPath())
+
+            Picasso picasso = Picasso.with(getActivity());
+//            picasso.setIndicatorsEnabled(true);
+            picasso.load(urlimage + movie.getBackdropPath())
+                    .error(R.mipmap.img_background)
+                    .into(imgTitleFront, new com.squareup.picasso.Callback() {
+                @Override
+                public void onSuccess() {
+
+                }
+
+                @Override
+                public void onError() {
+                    Log.d("Picasso", "error. try again");
+                    Picasso.with(getActivity())
+                            .load(urlimage + movie.getBackdropPath())
+                            .error(R.mipmap.img_background)
+                            .into(imgTitleFront, new com.squareup.picasso.Callback() {
+                                @Override
+                                public void onSuccess() {
+                                    Log.d("Picasso", "Sukses kali kedua");
+
+                                }
+
+                                @Override
+                                public void onError() {
+                                    Log.d("Picasso", "can't fetch image");
+                                }
+                            });
+                }
+            });
+//            picasso.setLoggingEnabled(true);
+
+//
+//            Picasso.with(getActivity())
+//                    .load(urlimage + movie.getBackdropPath())
 //                    .networkPolicy(NetworkPolicy.OFFLINE)
-                    .into(imgTitleFront);
+//                        .into(imgTitleFront, new com.squareup.picasso.Callback() {
+//                            @Override
+//                            public void onSuccess() {
+//
+//                            }
+//
+//                            @Override
+//                            public void onError() {
+//                                Log.d("Picasso", "error. try again");
+//                                Picasso.with(getActivity())
+//                                        .load(urlimage + movie.getBackdropPath())
+//                                        .error(R.drawable.imgdum)
+//                                        .into(imgTitleFront, new com.squareup.picasso.Callback() {
+//                                            @Override
+//                                            public void onSuccess() {
+//                                                Log.d("Picasso", "Sukses kali kedua");
+//
+//                                            }
+//
+//                                            @Override
+//                                            public void onError() {
+//                                                Log.d("Picasso", "can't fetch image");
+//                                            }
+//                                        });
+//                            }
+//                        });
+//
+
+
+
 
             rating.setRating(movie.getVoteAverage() / 2.0f);
             rating.setStepSize(0.1f);

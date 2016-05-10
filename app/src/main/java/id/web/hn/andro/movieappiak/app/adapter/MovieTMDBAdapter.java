@@ -14,6 +14,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -55,9 +56,16 @@ public class MovieTMDBAdapter extends RecyclerView.Adapter<MovieTMDBAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.txtListTitle.setText(" " + dataMovie.get(position).getTitle());
-        Picasso.with(context)
-                .load(urlimage + dataMovie.get(position).getPosterPath())
+        Picasso picasso = Picasso.with(context);
+//        picasso.setIndicatorsEnabled(true);
+//        picasso.setLoggingEnabled(true);
+
+        picasso.load(urlimage + dataMovie.get(position).getPosterPath())
+                .error(R.mipmap.img_background)
                 .into(holder.imgList);
+//        Picasso.with(context)
+//                .load(urlimage + dataMovie.get(position).getPosterPath())
+//                .into(holder.imgList);
 
         holder.txtListRelease.setText("Release: " + dataMovie.get(position).getReleaseDate());
         holder.ratingList.setRating(dataMovie.get(position).getVoteAverage() / 2.0f);

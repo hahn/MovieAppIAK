@@ -1,10 +1,11 @@
 package id.web.hn.andro.movieappiak.app.fragment;
 
-
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +29,7 @@ import id.web.hn.andro.movieappiak.app.adapter.MovieTMDBAdapter;
 import id.web.hn.andro.movieappiak.app.api.BaseTMDBApi;
 import id.web.hn.andro.movieappiak.app.model.tmdb.ModelTMDBMovie;
 import id.web.hn.andro.movieappiak.app.model.tmdb.MovieTMDB;
+import id.web.hn.andro.movieappiak.app.util.ConnectionDetector;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -46,6 +47,10 @@ public class MovieSearchFragment extends Fragment {
     private static final int LIMIT = 20;
     private int page, pastVisiblesItems, visibleItemCount, totalItemCount;
     private boolean loading;
+    private ProgressDialog dialog;
+
+    private ConnectionDetector connectionDetector;
+    private boolean isInternetConnected = false;
 
     int totpage = 0;
 
@@ -67,10 +72,23 @@ public class MovieSearchFragment extends Fragment {
 
         ((MainActivity) getActivity()).getSupportActionBar().setTitle("Search Movie");
         ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        dialog = new ProgressDialog(getActivity());
 
         page = 0;
 
         edtSearch = (EditText) rootView.findViewById(R.id.edt_search_movie);
+
+        //cek koneksi
+        connectionDetector = new ConnectionDetector(getContext());
+        isInternetConnected = connectionDetector.isInternetConnected();
+        if(isInternetConnected == false){
+            edtSearch.setEnabled(false);
+            Snackbar.make(rootView, "Can't connect to internet. Can't searching movie..", Snackbar.LENGTH_LONG).show();
+        }else{
+            edtSearch.setEnabled(true);
+            Log.d("internet", "internetnya jalan");
+
+        }
 
         edtSearch.setOnKeyListener(
                 new View.OnKeyListener() {
@@ -81,6 +99,11 @@ public class MovieSearchFragment extends Fragment {
 
                         if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)){
                             movie = edtSearch.getText().toString().trim();
+                            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                            dialog.setMessage("Loading. Please wait...");
+                            dialog.setIndeterminate(true);
+                            dialog.setCanceledOnTouchOutside(false);
+                            dialog.show();
                             searchMovie(movie, false);
                             return true;
                         }
@@ -88,6 +111,8 @@ public class MovieSearchFragment extends Fragment {
                     }
                 }
         );
+
+
 
         mAdapter = new MovieTMDBAdapter(getContext());
 
@@ -116,7 +141,6 @@ public class MovieSearchFragment extends Fragment {
                     searchMovie(edtSearch.getText().toString().trim(), true);
                     }
                 } else{
-                    Log.d("searching", "loading false: " + loading);
                     loading = false;
                 }
             }
@@ -186,7 +210,6 @@ public class MovieSearchFragment extends Fragment {
                 List<MovieTMDB> mv = new ArrayList<>();
                 @Override
                 public void onResponse(Call<ModelTMDBMovie> call, Response<ModelTMDBMovie> response) {
-//                    Log.d("onResponse", "response Asyncs " + response.body().getTotalPages());
                     mv = response.body().getResults();
                     totpage = response.body().getTotalPages();
 
@@ -194,12 +217,14 @@ public class MovieSearchFragment extends Fragment {
                         mAdapter.getDataMovie().add(m);
                         mAdapter.notifyDataSetChanged();
                     }
+                    dialog.dismiss();
                 }
 
                 @Override
                 public void onFailure(Call<ModelTMDBMovie> call, Throwable t) {
                     Log.d("onResponse", "Failure bray" );
                     t.printStackTrace();
+                    dialog.dismiss();
                 }
             });
 

@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import id.web.hn.andro.movieappiak.app.util.sqlite.MovieContract.MovieTmdbEntry;
 import id.web.hn.andro.movieappiak.app.util.sqlite.MovieContract.GenreTmdbEntry;
 
-import id.web.hn.andro.movieappiak.app.util.sqlite.MovieContract.MovieTmdbEntryBaru;
+import id.web.hn.andro.movieappiak.app.util.sqlite.MovieContract.*;
 
 /**
  * Created by hahn on 06/05/16.
@@ -67,7 +67,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                 " UNIQUE (" + GenreTmdbEntry.COLUMN_ID_GENRE + ") ON CONFLICT REPLACE);";
 
         //versi 2
-        final String SQL_CREATE_MOVIEDETAILTMDB_TABLE = "CREATE TABLE IF NOT EXISTS " + MovieTmdbEntry.TABLE_NAME + " (" +
+        final String SQL_CREATE_MOVIEDETAILTMDB_TABLE = "CREATE TABLE IF NOT EXISTS " + MovieTmdbEntryBaru.TABLE_NAME + " (" +
                 MovieTmdbEntryBaru._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 MovieTmdbEntryBaru.COLUMN_ID_FILM + " INTEGER NOT NULL, " +
                 MovieTmdbEntryBaru.COLUMN_GENRE_ID + " TEXT NOT NULL, " +
@@ -100,7 +100,15 @@ public class MovieDbHelper extends SQLiteOpenHelper {
 
                 " UNIQUE (" + MovieTmdbEntryBaru.COLUMN_ID_FILM + " ) ON CONFLICT REPLACE);";
 
-
+        final String SQL_CREATE_GENRE_RELATION = "CREATE TABLE IF NOT EXISTS " + GenreMovieRelationEntry.TABLE_NAME + " (" +
+                GenreMovieRelationEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                GenreMovieRelationEntry.COLUMN_ID_GENRE + " INTEGER NOT NULL, " +
+                GenreMovieRelationEntry.COLUMN_ID_MOVIE + " TEXT NOT NULL, " +
+                " FOREIGN KEY (" + GenreMovieRelationEntry.COLUMN_ID_GENRE + ") REFERENCES " +
+                GenreTmdbEntry.TABLE_NAME + "( " + GenreTmdbEntry.COLUMN_ID_GENRE + " ) " +
+                " FOREIGN KEY (" + GenreMovieRelationEntry.COLUMN_ID_MOVIE + ") REFERENCES " +
+                MovieTmdbEntryBaru.TABLE_NAME + "( " + MovieTmdbEntryBaru.COLUMN_ID_FILM + " ) " +
+                " );";
 
         //EKSEKUSI
         db.execSQL(SQL_CREATE_MOVIETMDB_TABLE);

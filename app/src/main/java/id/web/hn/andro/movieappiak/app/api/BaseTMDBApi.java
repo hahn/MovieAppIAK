@@ -3,8 +3,10 @@ package id.web.hn.andro.movieappiak.app.api;
 import id.web.hn.andro.movieappiak.app.model.ModelOMDBMovieSearch;
 import id.web.hn.andro.movieappiak.app.model.tmdb.ModelTMDBMovie;
 import id.web.hn.andro.movieappiak.app.model.tmdb.MovieTMDB;
+import id.web.hn.andro.movieappiak.app.model.tmdb.MovieTMDB2;
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -13,7 +15,7 @@ import retrofit2.http.Query;
 public interface BaseTMDBApi {
     String paramsDiscover = "discover/movie?";
     String paramSearch = "search/movie?";
-    String paramDetail = "movie/";
+    String paramDetail = "movie/{id}";
     @GET(paramsDiscover)
     Call<ModelTMDBMovie> loadMovie(
             @Query("primary_release_year") int year,
@@ -28,8 +30,8 @@ public interface BaseTMDBApi {
             @Query("api_key") String API_KEY);
 
     @GET(paramDetail)
-    Call<MovieTMDB> loadDetailMovie(
-            @Query("") int id_movie,
+    Call<MovieTMDB2> loadDetailMovie(
+            @Path("id") int id_movie,
             @Query("api_key") String API_KEY);
 
 }
