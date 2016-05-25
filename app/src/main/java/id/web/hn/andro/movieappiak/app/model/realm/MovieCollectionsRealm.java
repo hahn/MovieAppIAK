@@ -1,16 +1,18 @@
-package id.web.hn.andro.movieappiak.app.model.tmdb;
+package id.web.hn.andro.movieappiak.app.model.realm;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 
 /**
- * Created by hahn on 09/05/16.
+ * Created by hahn on 14/05/16.
  */
-public class ModelTMDBCollections extends RealmObject implements Serializable{
+public class MovieCollectionsRealm extends RealmObject implements Serializable {
+
     @SerializedName("id")
     @Expose
     private int id;

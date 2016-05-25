@@ -24,6 +24,8 @@ import id.web.hn.andro.movieappiak.app.api.BaseTMDBApi;
 import id.web.hn.andro.movieappiak.app.model.tmdb.MovieTMDB;
 import id.web.hn.andro.movieappiak.app.model.tmdb.MovieTMDB2;
 import id.web.hn.andro.movieappiak.app.util.ConnectionDetector;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -45,6 +47,9 @@ public class DetailActivity extends AppCompatActivity {
 
     private Bundle extras;
     private MovieTMDB data;
+
+    //realm
+    Realm myrealm;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -81,6 +86,10 @@ public class DetailActivity extends AppCompatActivity {
         txtStatusT = (TextView) findViewById(R.id.text_status);
         txtHomepage = (TextView) findViewById(R.id.txt_detail_homepage);
         txtHomepageT = (TextView) findViewById(R.id.text_homepage);
+
+        //konfigurasi realm
+        RealmConfiguration realmConfig = new RealmConfiguration.Builder(this).build();
+        myrealm = Realm.getInstance(realmConfig);
 
         dialog = new ProgressDialog(this);
 
@@ -187,6 +196,11 @@ public class DetailActivity extends AppCompatActivity {
                         genres += movieTMDB2.getGenres().get(j).getNameGenre() + ", ";
                     }
                 }
+
+//                //realm. update database
+//                myrealm.beginTransaction();
+//                myrealm.copyToRealmOrUpdate(movieTMDB2);
+//                myrealm.commitTransaction();
 
                 txtGenresT.setText("Genre");
                 txtGenres.setText(genres);

@@ -48,8 +48,12 @@ import id.web.hn.andro.movieappiak.app.model.ModelOMDBMovieDetails;
 import id.web.hn.andro.movieappiak.app.model.ModelOMDBMovieSearch;
 import id.web.hn.andro.movieappiak.app.model.tmdb.ModelTMDBMovie;
 import id.web.hn.andro.movieappiak.app.model.tmdb.MovieTMDB;
+import id.web.hn.andro.movieappiak.app.model.tmdb.MovieTMDB2;
 import id.web.hn.andro.movieappiak.app.util.ConnectionDetector;
 import id.web.hn.andro.movieappiak.app.util.sqlite.MovieDbSQLiteQuery;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -72,6 +76,9 @@ public class MovieFrontFragment extends Fragment {
     private MovieDbSQLiteQuery movieQuery;
     private ConnectionDetector connectionDetector;
     private boolean isInternetConnected = false;
+
+    //realm
+    Realm myrealm;
 
 
     private int page, pastVisiblesItems, visibleItemCount, totalItemCount;
@@ -116,6 +123,10 @@ public class MovieFrontFragment extends Fragment {
         isInternetConnected = connectionDetector.isInternetConnected();
 
         movieQuery = new MovieDbSQLiteQuery(getContext());
+
+        //konfigurasi realm
+//        RealmConfiguration realmConfig = new RealmConfiguration.Builder(getContext()).build();
+//        myrealm = Realm.getInstance(realmConfig);
 
         rvListMovieFront.setLayoutManager(llm);
 //        rvListMovieFront.setAdapter(mAdapter);
@@ -189,7 +200,6 @@ public class MovieFrontFragment extends Fragment {
             //tidak konek. cek apa adapter berisi atau tidak
             if(mAdapter.getDataMovie().size() !=0){
                 Log.d("connection", "tidak ada koneksi tapi adapter berisi.");
-             //tidak konek, isi adapter adaan. ya sudah
             } else {
                 //tidak konek, adapter kosong
                 Log.d("connection", "tidak ada koneksi, adapter kosong.");
@@ -240,6 +250,56 @@ public class MovieFrontFragment extends Fragment {
 
         movieQuery.closeDb();
 
+        //cara realm
+//        RealmResults<MovieTMDB2> movie = myrealm.where(MovieTMDB2.class).findAll();
+//        //ambil untuk front aja
+//        MovieTMDB2 mvFront = movie.get(0);
+//        MovieTMDB mv2 = new MovieTMDB();
+
+        //masukkan ke layout
+//        txtTitleFront.setText(mvFront.getTitle());
+//                Picasso picasso = Picasso.with(getActivity());
+//                picasso.setIndicatorsEnabled(true);
+//                picasso.load(urlimage + mvFront.getBackdropPath())
+//                        .error(R.mipmap.img_background)
+//                        .networkPolicy(NetworkPolicy.OFFLINE)
+//                        .into(imgTitleFront);
+//
+////                Picasso.with(getActivity())
+////                        .load(urlimage + mv.getBackdropPath())
+////                        .into(imgTitleFront);
+//                float rt = mvFront.getVoteAverage() /2;
+//                rating.setRating(rt);
+//                rating.setStepSize(0.1f);
+//                Log.d("rating", "rating " + mvFront.getTitle() + ": " + rt);
+//
+//
+//        //isi list sisanya
+//        for(MovieTMDB2 mv : movie){
+//            if(mv.equals(mvFront)){
+//                return;
+//            } else{
+//                //samentawis pake adapter lama, nanti mah semua diganti ke MovieTMDB2
+//                mv2.setId(mv.getId());
+//                mv2.setOverview(mv.getOverview());
+//                mv2.setTitle(mv.getTitle());
+////                mv2.setGenreIds(mv.getGenreIds());
+//                mv2.setReleaseDate(mv.getReleaseDate());
+//                mv2.setOriginalTitle(mv.getOriginalTitle());
+//                mv2.setBackdropPath(mv.getBackdropPath());
+//                mv2.setPosterPath(mv.getPosterPath());
+//                mv2.setOriginalLanguage(mv.getOriginalLanguage());
+//                mv2.setPopularity(mv.getPopularity());
+//                mv.setVoteAverage(mv.getVoteAverage());
+//                mv2.setVoteCount(mv.getVoteCount());
+//                mv2.setAdult(mv.isAdult());
+//                mv2.setVideo(mv.isVideo());
+//
+//                mAdapter.getDataMovie().add(mv2);
+//                mAdapter.notifyDataSetChanged();
+//            }
+//        }
+
     }
 
 
@@ -248,6 +308,13 @@ public class MovieFrontFragment extends Fragment {
         movieQuery.openDb();
         movieQuery.clearTableMovie();
         movieQuery.closeDb();
+
+//        //hapus dari realm
+//        RealmResults<MovieTMDB2> results = myrealm.where(MovieTMDB2.class).findAll();
+//        myrealm.beginTransaction();
+//        results.deleteAllFromRealm();
+//        myrealm.commitTransaction();
+
         //hapus dulu isi adapternya
         FetchMovieTask fetchMovieTask = new FetchMovieTask();
         fetchMovieTask.execute(page);
@@ -308,6 +375,7 @@ public class MovieFrontFragment extends Fragment {
                     }
 
                     isiListMovie(response.body().getResults());
+//                    isiListMovie2(response.body().getResults());
 
                 }
 
@@ -325,12 +393,13 @@ public class MovieFrontFragment extends Fragment {
         private void isiListMovie(List<MovieTMDB> results) {
             movieQuery.openDb();
             int i = 0;
-            MovieTMDB mv;
             if(results != null){
                 for(MovieTMDB mt : results){
                     mAdapter.getDataMovie().add(mt);
                     mAdapter.notifyDataSetChanged();
                     movieQuery.insertMovie(mt);
+                    //realm
+
                 }
                 //close db
                 movieQuery.closeDb();
@@ -407,9 +476,6 @@ public class MovieFrontFragment extends Fragment {
 //                            }
 //                        });
 //
-
-
-
 
             rating.setRating(movie.getVoteAverage() / 2.0f);
             rating.setStepSize(0.1f);

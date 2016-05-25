@@ -7,6 +7,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 
 import id.web.hn.andro.movieappiak.R;
+import id.web.hn.andro.movieappiak.app.fragment.FrontFragmentRealm;
 import id.web.hn.andro.movieappiak.app.fragment.MovieFrontFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -22,7 +23,8 @@ public class MainActivity extends AppCompatActivity {
 
         if(savedInstanceState == null){
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container_fragment, new MovieFrontFragment())
+//                    .add(R.id.container_fragment, new MovieFrontFragment())
+                    .add(R.id.container_fragment, new FrontFragmentRealm())
                     .commit();
         }
     }

@@ -1,18 +1,17 @@
-package id.web.hn.andro.movieappiak.app.model.tmdb;
+package id.web.hn.andro.movieappiak.app.model.realm;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 
 /**
- * Created by hahn on 04/05/16.
+ * Created by hahn on 14/05/16.
  */
-public class ModelTMDBMovie implements Serializable  {
+public class ModelMovieRealm extends RealmObject implements Serializable{
     private int page;
 
     @SerializedName("total_results")
@@ -25,11 +24,7 @@ public class ModelTMDBMovie implements Serializable  {
 
     @SerializedName("results")
     @Expose
-    private List<MovieTMDB> results = new ArrayList<>();
-
-    public List<MovieTMDB> getResults() {
-        return results;
-    }
+    private RealmList<MovieRealm> results = new RealmList<>();
 
     public int getPage() {
         return page;
@@ -43,5 +38,7 @@ public class ModelTMDBMovie implements Serializable  {
         return totalPages;
     }
 
-
+    public RealmList<MovieRealm> getResults() {
+        return results;
+    }
 }

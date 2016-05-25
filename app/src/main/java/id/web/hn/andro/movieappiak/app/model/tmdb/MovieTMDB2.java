@@ -7,10 +7,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
 /**
  * Created by hahn on 04/05/16.
  */
-public class MovieTMDB2 implements Serializable {
+public class MovieTMDB2 implements Serializable  {
     @SerializedName("poster_path")
     @Expose
     private String posterPath;
@@ -25,6 +28,7 @@ public class MovieTMDB2 implements Serializable {
     @Expose
     private String releaseDate;
 
+    @PrimaryKey
     private int id;
 
     @SerializedName("original_title")
@@ -59,9 +63,9 @@ public class MovieTMDB2 implements Serializable {
     @Expose
     private float voteAverage;
 
-    @SerializedName("genre_ids")
-    @Expose
-    private int[] genreIds;
+//    @SerializedName("genre_ids")
+//    @Expose
+//    private int[] genreIds;
 
     //tambahan dari movie detail (id)
     @SerializedName("imdb_id")
@@ -260,9 +264,9 @@ public class MovieTMDB2 implements Serializable {
         return voteAverage;
     }
 
-    public int[] getGenreIds() {
-        return genreIds;
-    }
+//    public int[] getGenreIds() {
+//        return genreIds;
+//    }
 
 
     //setter
@@ -318,7 +322,7 @@ public class MovieTMDB2 implements Serializable {
         this.voteAverage = voteAverage;
     }
 
-    public void setGenreIds(int[] genreIds) {
-        this.genreIds = genreIds;
-    }
+//    public void setGenreIds(int[] genreIds) {
+//        this.genreIds = genreIds;
+//    }
 }
